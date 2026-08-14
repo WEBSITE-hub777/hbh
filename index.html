@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+<title>BitTool</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Poppins,sans-serif;background:#07111f;color:#fff;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:
+radial-gradient(circle at 20% 20%,rgba(0,255,170,.18),transparent 30%),
+radial-gradient(circle at 80% 30%,rgba(0,120,255,.18),transparent 30%),
+radial-gradient(circle at 50% 80%,rgba(0,255,255,.12),transparent 35%);
+z-index:-1}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 7%;position:sticky;top:0;background:rgba(8,16,30,.7);backdrop-filter:blur(14px)}
+.logo{font-size:2rem;font-weight:700}.logo span{color:#32ff93}
+nav a{color:#d8e5f5;text-decoration:none;margin-left:22px}
+.hero{padding:90px 7%;display:grid;grid-template-columns:1.2fr 1fr;gap:30px;align-items:center}
+.hero h1{font-size:56px;line-height:1.1}
+.hero p{margin:18px 0;color:#bfd0e4}
+.btn{display:inline-block;padding:14px 28px;border-radius:14px;background:linear-gradient(135deg,#24d366,#00b4d8);color:#fff;text-decoration:none;font-weight:700;box-shadow:0 10px 30px rgba(0,255,170,.3)}
+.mock{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:25px;padding:25px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.tile{background:#101d33;border-radius:18px;padding:18px;text-align:center;transition:.3s}
+.tile:hover{transform:translateY(-6px) scale(1.03)}
+.tools{padding:60px 7%}
+.tools h2{text-align:center;font-size:38px;margin-bottom:30px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:24px;transition:.3s}
+.card:hover{transform:translateY(-8px);box-shadow:0 15px 40px rgba(0,255,170,.18)}
+.icon{font-size:42px}
+.card h3{margin:14px 0}
+.card p{color:#c6d3e2;font-size:14px;min-height:60px}
+.card a{color:#38ef7d;text-decoration:none;font-weight:700}
+.features{padding:60px 7%;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px}
+.feature{padding:25px;border-radius:20px;background:linear-gradient(135deg,#10223d,#16395f);text-align:center}
+footer{padding:40px;text-align:center;color:#9fb5cb;background:#0a1423;margin-top:30px}
+@media(max-width:850px){.hero{grid-template-columns:1fr}.hero h1{font-size:42px}nav{display:none}}
+
+.profile-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#24d366,#00b4d8);
+display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;
+font-size:22px;font-weight:bold;box-shadow:0 8px 20px rgba(0,255,170,.3)}
+.profile-page{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
+align-items:center;justify-content:center;z-index:9999}
+.profile-box{width:360px;background:#0f1f35;border:1px solid rgba(255,255,255,.1);
+border-radius:22px;padding:28px;text-align:center}
+.avatar{width:90px;height:90px;border-radius:50%;margin:auto;background:linear-gradient(135deg,#24d366,#00b4d8);
+display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:bold}
+.close{margin-top:20px;padding:10px 22px;border:none;border-radius:12px;background:#24d366;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+<script>
+(function(){
+  const first=localStorage.getItem("bittool_first");
+  const last=localStorage.getItem("bittool_last");
+  const email=localStorage.getItem("bittool_email");
+  const signedUp=!!((first&&first.trim())||(last&&last.trim())||(email&&email.trim()));
+
+  if(!signedUp){
+    window.location.replace("SignUp.html");
+  }
+})();
+</script>
+
+<header>
+<div class="logo">Bit<span>Tool</span></div>
+<nav>
+<a href="#">Home</a><a href="#tools">Tools</a><a href="#">About</a><a href="#">Contact</a>
+</nav>
+<a class="profile-btn" href="#" onclick="openProfile();return false;">👤</a></header>
+<section class="hero">
+<div>
+<h1>All Your Essential Tools<br/>In One Place</h1>
+<p>BitTool helps you compress images, convert formats, generate PDFs, create QR codes and strong passwords with a modern, fast and secure interface.</p>
+<a class="btn" href="#tools">Explore Tools</a>
+</div>
+<div class="mock">
+<div class="grid">
+<div class="tile">🖼️<br/>Compressor</div>
+<div class="tile">🔄<br/>Converter</div>
+<div class="tile">📱<br/>QR</div>
+<div class="tile">📄<br/>PDF</div>
+</div>
+</div>
+</section>
+<section class="tools" id="tools">
+<h2>Popular Tools</h2>
+<div class="cards">
+<div class="card"><div class="icon">🖼️</div><h3>Image Compressor</h3><p>Reduce image size while maintaining quality.</p><a href="compressor.html">Open Tool →</a></div>
+<div class="card"><div class="icon">🔄</div><h3>Image Converter</h3><p>Convert PNG, JPG, WEBP and more.</p><a href="fileconverter.html">Open Tool →</a></div>
+<div class="card"><div class="icon">📄</div><h3>PDF Generator</h3><p>Create PDFs from text and images.</p><a href="pdfgenerater.html">Open Tool →</a></div>
+<div class="card"><div class="icon">📱</div><h3>QR Generator</h3><p>Create QR codes for URLs, text and Wi‑Fi.</p><a href="qr.html">Open Tool →</a></div>
+</div>
+</section>
+<section class="features">
+<div class="feature">⚡ Fast Processing</div>
+<div class="feature">🔒 Privacy First</div>
+<div class="feature">📱 Responsive Design</div>
+<div class="feature">💯 Free Forever</div>
+</section>
+<footer>
+<h2>BitTool</h2>
+<p>Fast • Secure • Free</p>
+<p>© 2026 BitTool</p>
+</footer>
+<script>
+document.querySelectorAll('.card').forEach(c=>{
+ c.onmousemove=()=>c.style.borderColor='#32ff93';
+ c.onmouseleave=()=>c.style.borderColor='rgba(255,255,255,.08)';
+});
+
+function openProfile(){
+let n=localStorage.getItem('bittool_first')||'Your';
+let l=localStorage.getItem('bittool_last')||'Name';
+let e=localStorage.getItem('bittool_email')||'Please Sign Up';
+document.getElementById('avatar').textContent=n.charAt(0).toUpperCase();
+document.getElementById('fullName').textContent=n+' '+l;
+document.getElementById('emailText').textContent=e;
+document.getElementById('profilePage').style.display='flex';
+}
+function closeProfile(){document.getElementById('profilePage').style.display='none';}
+</script>
+
+<div class="profile-page" id="profilePage">
+<div class="profile-box">
+<div class="avatar" id="avatar">N</div>
+<h2 id="fullName">Your Name</h2>
+<p id="emailText">Please Sign Up</p>
+<button class="close" onclick="closeProfile()">Close</button>
+</div></div>
+</body>
+</html>
