@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BitImage - Image Compressor</title>
+<script src='https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#0b1220,#12243d);color:#fff}
+header{padding:18px 30px;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);backdrop-filter:blur(10px);position:sticky;top:0}
+.logo{font-size:30px;font-weight:700;color:#37e58d}
+.hero{max-width:900px;margin:40px auto;padding:0 20px;text-align:center}
+.hero h1{font-size:48px}
+.hero p{margin:15px 0;color:#cbd5e1}
+.card{max-width:950px;margin:25px auto;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(15px);padding:25px;border-radius:22px}
+.drop{border:3px dashed #37e58d;border-radius:18px;padding:55px;text-align:center;cursor:pointer;transition:.25s}
+.drop:hover{background:rgba(55,229,141,.08)}
+input[type=file]{display:none}
+.controls{display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+input[type=number]{padding:12px;border-radius:10px;border:none;width:120px}
+button{padding:12px 20px;border:none;border-radius:12px;font-weight:700;cursor:pointer}
+.primary{background:#37e58d;color:#062014}
+.secondary{background:#2563eb;color:#fff}
+#list{margin-top:20px}
+.item{display:flex;justify-content:space-between;background:rgba(255,255,255,.05);padding:12px;border-radius:10px;margin:10px 0}
+footer{margin-top:60px;background:#050b16;padding:40px 20px}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:25px;max-width:1100px;margin:auto}
+footer h3{color:#37e58d;margin-bottom:10px}
+footer p{color:#cbd5e1;margin:6px 0}
+.copy{text-align:center;color:#94a3b8;margin-top:25px}
+</style>
+</head>
+<body>
+<header><div class="logo">BitImage</div><div>Fast • Secure • Free</div></header>
+
+<section class="hero">
+<h1>Compress Images in Seconds</h1>
+<p>Upload multiple images, reduce their size, and download them quickly.</p>
+</section>
+
+<div class="card">
+<div class="drop" id="drop">
+<h2>📁 Click to Choose Images</h2>
+<p>Select multiple JPG, PNG or WEBP images</p>
+<input id="files" type="file" multiple accept="image/*">
+</div>
+
+<div class="controls">
+<label>Target KB <input id="target" type="number" value="300"></label>
+<button class="primary" onclick="pick()">Choose Images</button>
+<button class="secondary" onclick="compressImages()">Compress</button>
+<button class="secondary" onclick="downloadZip()">Download ZIP</button>
+</div>
+
+<div id="list"></div>
+</div>
+
+<footer>
+<div class="footer-grid">
+<div>
+<h3>BitImage</h3>
+<p>Professional online image compression tool.</p>
+</div>
+<div>
+<h3>Features</h3>
+<p>Batch Compression</p>
+<p>Fast Processing</p>
+<p>Secure Browser Processing</p>
+</div>
+<div>
+<h3>Support</h3>
+<p>Help Center</p>
+<p>Contact</p>
+<p>Privacy Policy</p>
+</div>
+<div>
+<h3>Tools</h3>
+<p>Image Compressor</p>
+<p>PNG Optimizer</p>
+<p>JPG Compressor</p>
+</div>
+</div>
+<div class="copy">© 2026 BitImage • Made with HTML, CSS & JavaScript</div>
+</footer>
+
+<script>
+const inp=document.getElementById('files');
+const drop=document.getElementById('drop');
+const list=document.getElementById('list');
+function pick(){inp.click();}
+drop.onclick=pick;
+inp.onchange=()=>{
+list.innerHTML='';
+[...inp.files].forEach(f=>{
+list.innerHTML+=`<div class="item"><span>🖼 ${f.name}</span><span>${(f.size/1024).toFixed(1)} KB</span></div>`;
+});
+}
+</script>
+
+<script>
+let compressed=[];
+async function compressImages(){
+ if(!inp.files.length){alert('Choose images first');return;}
+ compressed=[];
+ list.innerHTML='';
+ const targetKB=parseInt(document.getElementById('target').value)||300;
+ for(const f of [...inp.files]){
+   const c=await imageCompression(f,{
+     maxSizeMB:Math.max(targetKB/1024,0.05),
+     maxWidthOrHeight:1920,
+     useWebWorker:true,
+     initialQuality:0.8
+   });
+   compressed.push({name:f.name,file:c});
+   const a=document.createElement('a');
+   a.href=URL.createObjectURL(c);
+   a.download=f.name;
+   a.textContent='Download';
+   const div=document.createElement('div');
+   div.className='item';
+   div.innerHTML=`<span>${f.name}</span><span>${(f.size/1024).toFixed(0)} → ${(c.size/1024).toFixed(0)} KB</span>`;
+   div.appendChild(a);
+   list.appendChild(div);
+ }
+ alert('Compression completed.');
+}
+
+async function downloadZip(){
+ if(!compressed.length){alert('Compress images first');return;}
+ const zip=new JSZip();
+ compressed.forEach(f=>zip.file(f.name,f.file));
+ const blob=await zip.generateAsync({type:'blob'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='BitImage_Compressed.zip';
+ a.click();
+}
+
+</script>
+</body>
+</html>

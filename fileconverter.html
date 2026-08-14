@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BitTool - Premium File Converter</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{min-height:100vh;color:#fff;background:linear-gradient(135deg,#071b34,#0c3f6d,#0e8b6d)}
+header{height:76px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.08);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.15);position:sticky;top:0;z-index:20}
+.logo{font-size:29px;font-weight:800}.logo span{color:#00ff95}
+.profile{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#00ff95;color:#061426;font-weight:800;cursor:pointer}
+.popup{display:none;position:fixed;right:18px;top:88px;width:285px;padding:22px;background:#fff;color:#222;border-radius:20px;z-index:50;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.avatar{width:68px;height:68px;margin:auto;border-radius:50%;background:#00ff95;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800}
+.popup h2{text-align:center;margin-top:12px}.popup p{text-align:center;margin-top:7px;word-break:break-word}
+.card{width:94%;max-width:850px;margin:34px auto;padding:30px;border-radius:28px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,.18)}
+h1{text-align:center;font-size:30px;margin-bottom:8px}.sub{text-align:center;opacity:.78;margin-bottom:25px}
+.drop{display:block;border:2px dashed rgba(255,255,255,.45);border-radius:20px;padding:30px;text-align:center;cursor:pointer}
+.drop:hover{background:rgba(255,255,255,.06);border-color:#00ff95}
+.drop strong{display:block;font-size:20px;margin-bottom:7px}#file{display:none}
+.fileName{text-align:center;margin-top:12px;opacity:.85;word-break:break-word}
+.preview{display:none;max-width:100%;max-height:300px;margin:22px auto;border-radius:16px;background:#fff;padding:8px}
+.section-title{font-weight:800;margin-top:24px;margin-bottom:10px}
+.routes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.route{padding:13px;border-radius:13px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.12);font-size:14px}
+.convertBox{margin-top:24px}
+label{font-weight:700;margin-bottom:8px;display:block}
+select,button{width:100%;padding:15px;border:0;border-radius:14px;font-size:16px}
+select{background:#fff;color:#222}
+button{margin-top:20px;background:linear-gradient(90deg,#00ff95,#00cfff);color:#052033;font-weight:800;cursor:pointer;transition:.2s}
+button:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,255,180,.25)}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.status{text-align:center;min-height:24px;margin-top:16px}.footer{text-align:center;opacity:.7;margin-top:25px}
+@media(max-width:600px){.routes{grid-template-columns:1fr}.card{padding:20px}h1{font-size:25px}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.min.js"></script>
+</head>
+<body>
+
+<header>
+<div class="logo">Bit<span>Tool</span></div>
+<div class="profile" id="profileBtn">N</div>
+</header>
+
+<div class="popup" id="profilePopup">
+<div class="avatar" id="profileAvatar">N</div>
+<h2 id="profileName">Your Name</h2>
+<p id="profileEmail">Please Sign Up</p>
+</div>
+
+<main class="card">
+<h1>Premium File Converter</h1>
+<p class="sub">Convert your image files directly in your browser</p>
+
+<label class="drop" for="file">
+<strong>📁 Choose File</strong>
+<span>PNG • JPG • JPEG • WebP • GIF • BMP • TIFF • ICO</span>
+</label>
+<input id="file" type="file" >
+
+<div class="fileName" id="fileName">No file selected</div>
+<img id="preview" class="preview" alt="Preview">
+
+<div class="section-title">Supported Conversions</div>
+<div class="routes">
+<div class="route">PNG → JPG / JPEG</div>
+<div class="route">JPG / JPEG → PNG</div>
+<div class="route">WebP → PNG</div>
+<div class="route">PNG → WebP</div>
+<div class="route">JPG → WebP</div>
+<div class="route">GIF → PNG</div>
+<div class="route">BMP → PNG</div>
+<div class="route">BMP → JPG</div>
+<div class="route">TIFF → PNG / JPG</div>
+<div class="route">ICO → PNG</div>
+</div>
+
+<div class="convertBox">
+<label for="to">Convert To</label>
+<select id="to" disabled>
+<option value="">Choose a file first</option>
+</select>
+</div>
+
+<button id="convertBtn" disabled>Convert & Download</button>
+<div class="status" id="status"></div>
+<div class="footer">Made with ❤️ BitTool</div>
+</main>
+
+<script>
+const fileInput=document.getElementById("file");
+const fileName=document.getElementById("fileName");
+const preview=document.getElementById("preview");
+const to=document.getElementById("to");
+const convertBtn=document.getElementById("convertBtn");
+const status=document.getElementById("status");
+
+let selectedFile=null;
+let detectedType="";
+
+const conversions={
+  png:["jpg","webp"],
+  jpg:["png","webp"],
+  jpeg:["png","webp"],
+  webp:["png","jpg"],
+  gif:["png"],
+  bmp:["png","jpg"],
+  tif:["png","jpg"],
+  tiff:["png","jpg"],
+  ico:["png"]
+};
+
+const labels={
+  png:"PNG",
+  jpg:"JPG / JPEG",
+  jpeg:"JPG / JPEG",
+  webp:"WebP",
+  gif:"GIF",
+  bmp:"BMP",
+  tif:"TIFF",
+  tiff:"TIFF",
+  ico:"ICO"
+};
+
+const mime={
+  jpg:"image/jpeg",
+  png:"image/png",
+  webp:"image/webp"
+};
+
+function extOf(name){
+  return name.split(".").pop().toLowerCase();
+}
+
+/* Automatically detects the selected file and
+   shows ONLY the formats that file can be converted to. */
+function detectFile(){
+  if(!selectedFile)return;
+
+  detectedType=extOf(selectedFile.name);
+
+  /* JPEG files are treated as JPG */
+  if(detectedType==="jpeg")detectedType="jpg";
+
+  const targets=conversions[detectedType]||[];
+
+  to.innerHTML="";
+
+  if(!targets.length){
+    const option=document.createElement("option");
+    option.value="";
+    option.textContent="Unsupported file";
+    to.appendChild(option);
+    to.disabled=true;
+    convertBtn.disabled=true;
+    status.textContent="This file format is not supported.";
+    return;
+  }
+
+  const first=document.createElement("option");
+  first.value="";
+  first.textContent="Choose format";
+  to.appendChild(first);
+
+  targets.forEach(format=>{
+    const option=document.createElement("option");
+    option.value=format;
+    option.textContent=labels[format];
+    to.appendChild(option);
+  });
+
+  to.disabled=false;
+  convertBtn.disabled=true;
+  status.textContent="File detected: "+labels[detectedType]+". Now choose the output format.";
+}
+
+fileInput.addEventListener("change",()=>{
+  selectedFile=fileInput.files[0];
+
+  if(!selectedFile)return;
+
+  fileName.textContent=selectedFile.name;
+  status.textContent="Detecting file...";
+
+  detectFile();
+
+  const ext=extOf(selectedFile.name);
+
+  if(ext==="tif"||ext==="tiff"){
+    preview.style.display="none";
+    preview.removeAttribute("src");
+  }else{
+    const url=URL.createObjectURL(selectedFile);
+    preview.src=url;
+    preview.style.display="block";
+  }
+});
+
+to.addEventListener("change",()=>{
+  if(to.value){
+    convertBtn.disabled=false;
+    status.textContent=
+      "Ready: "+labels[detectedType]+" → "+labels[to.value];
+  }else{
+    convertBtn.disabled=true;
+    status.textContent="Choose the format you want.";
+  }
+});
+
+/* SignUp.html profile integration */
+document.getElementById("profileBtn").onclick=()=>{
+  const p=document.getElementById("profilePopup");
+  p.style.display=p.style.display==="block"?"none":"block";
+};
+
+/* Connected directly to SignUp.html.
+   SignUp.html saves:
+   bittool_first, bittool_last, bittool_email */
+function loadProfile(){
+const first=(localStorage.getItem("bittool_first")||"").trim();
+const last=(localStorage.getItem("bittool_last")||"").trim();
+const email=(localStorage.getItem("bittool_email")||"").trim();
+
+const hasSignup=!!(first||last||email);
+const initial=hasSignup
+  ? (first.charAt(0)||last.charAt(0)||"N").toUpperCase()
+  : "N";
+
+document.getElementById("profileBtn").textContent=initial;
+document.getElementById("profileAvatar").textContent=initial;
+document.getElementById("profileName").textContent=
+  hasSignup ? ((first+" "+last).trim()||"Your Name") : "Your Name";
+document.getElementById("profileEmail").textContent=
+  hasSignup ? (email||"No email") : "Please Sign Up";
+}
+loadProfile();
+
+window.addEventListener("storage",loadProfile);
+
+function downloadCanvas(canvas,type,name){
+  return new Promise((resolve,reject)=>{
+    const ext=type==="image/jpeg"?"jpg":
+              type==="image/webp"?"webp":"png";
+
+    const base=name.replace(/\.[^/.]+$/,"");
+
+    canvas.toBlob(blob=>{
+      if(!blob){
+        reject(new Error("Could not create output file"));
+        return;
+      }
+
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+
+      a.href=url;
+      a.download=base+"_converted."+ext;
+      a.style.display="none";
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(()=>{
+        URL.revokeObjectURL(url);
+        resolve();
+      },1000);
+    },type,.92);
+  });
+}
+
+function drawToCanvas(img){
+  const canvas=document.createElement("canvas");
+
+  canvas.width=img.naturalWidth||img.width;
+  canvas.height=img.naturalHeight||img.height;
+
+  const ctx=canvas.getContext("2d");
+
+  /* White background prevents transparent PNG areas
+     from becoming black when converting to JPG. */
+  ctx.fillStyle="#ffffff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.drawImage(img,0,0);
+
+  return canvas;
+}
+
+function convertWithImage(){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.decoding="async";
+    const url=URL.createObjectURL(selectedFile);
+
+    img.onload=()=>{
+      try{
+        resolve(drawToCanvas(img));
+      }catch(e){
+        reject(e);
+      }finally{
+        URL.revokeObjectURL(url);
+      }
+    };
+
+    img.onerror=()=>{
+      URL.revokeObjectURL(url);
+      reject(new Error("decode"));
+    };
+
+    img.src=url;
+  });
+}
+
+async function convertTIFF(){
+  const buffer=await selectedFile.arrayBuffer();
+  const ifds=UTIF.decode(buffer);
+
+  if(!ifds.length){
+    throw new Error("TIFF decode failed");
+  }
+
+  UTIF.decodeImage(buffer,ifds[0]);
+
+  const rgba=UTIF.toRGBA8(ifds[0]);
+
+  const canvas=document.createElement("canvas");
+
+  canvas.width=ifds[0].width;
+  canvas.height=ifds[0].height;
+
+  const ctx=canvas.getContext("2d");
+  const imageData=ctx.createImageData(canvas.width,canvas.height);
+
+  imageData.data.set(rgba);
+  ctx.putImageData(imageData,0,0);
+
+  return canvas;
+}
+
+convertBtn.addEventListener("click",async()=>{
+  if(!selectedFile||!to.value)return;
+
+  convertBtn.disabled=true;
+  status.textContent="Converting...";
+
+  try{
+    let canvas;
+
+    if(detectedType==="tif"||detectedType==="tiff"){
+      canvas=await convertTIFF();
+    }else{
+      canvas=await convertWithImage();
+    }
+
+    await downloadCanvas(
+      canvas,
+      mime[to.value]||"image/png",
+      selectedFile.name
+    );
+
+    status.textContent="Done! Your converted file has been downloaded.";
+  }catch(error){
+    console.error(error);
+    status.textContent=
+      "This file could not be converted in this browser.";
+  }finally{
+    convertBtn.disabled=false;
+  }
+});
+
+</script>
+</body>
+</html>
